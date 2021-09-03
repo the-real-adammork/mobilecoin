@@ -580,6 +580,20 @@ bool mc_slip10_account_private_keys_from_mnemonic(FfiStr mnemonic,
  * # Preconditions
  *
  * * `view_private_key` - must be a valid 32-byte Ristretto-format scalar.
+ *
+ * # Errors
+ *
+ * * `LibMcError::InvalidInput`
+ */
+bool mc_tx_out_shared_secret(FfiRefPtr<McBuffer> tx_out_public_key,
+                             FfiRefPtr<McBuffer> view_private_key,
+                             FfiMutPtr<McMutableBuffer> out_tx_out_shared_secret,
+                             FfiOptMutPtr<FfiOptOwnedPtr<McError>> out_error);
+
+/**
+ * # Preconditions
+ *
+ * * `view_private_key` - must be a valid 32-byte Ristretto-format scalar.
  */
 bool mc_tx_out_matches_any_subaddress(FfiRefPtr<McTxOutAmount> tx_out_amount,
                                       FfiRefPtr<McBuffer> tx_out_public_key,

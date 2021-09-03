@@ -28,6 +28,34 @@ pub struct McTxOutAmount {
 ///
 /// * `view_private_key` - must be a valid 32-byte Ristretto-format scalar.
 #[no_mangle]
+pub extern "C" fn mc_tx_out_shared_secret(
+    tx_out_public_key: FfiRefPtr<McBuffer>,
+    view_private_key: FfiRefPtr<McBuffer>,
+    out_tx_out_shared_secret: FfiMutPtr<McMutableBuffer>,
+    out_error: FfiOptMutPtr<FfiOptOwnedPtr<McError>>
+) -> bool {
+    ffi_boundary_with_error(out_error, || {
+        let view_private_key = RistrettoPrivate::try_from_ffi(&view_private_key)
+            .expect("view_private_key is not a valid RistrettoPrivate");
+
+        let tx_out_public_key = RistrettoPublic::try_from_ffi(&tx_out_public_key)?;
+
+        let shared_secret = get_tx_out_shared_secret(&view_private_key, &tx_out_public_key);
+        
+        let out_tx_out_shared_secret = out_tx_out_shared_secret
+            .into_mut()
+            .as_slice_mut_of_len(RistrettoPublic::size())
+            .expect("out_tx_out_shared_secret length is insufficient");
+
+        out_tx_out_shared_secret.copy_from_slice(&shared_secret.to_bytes());
+        Ok(())
+    })
+}
+
+/// # Preconditions
+///
+/// * `view_private_key` - must be a valid 32-byte Ristretto-format scalar.
+#[no_mangle]
 pub extern "C" fn mc_tx_out_matches_any_subaddress(
     tx_out_amount: FfiRefPtr<McTxOutAmount>,
     tx_out_public_key: FfiRefPtr<McBuffer>,
