@@ -95,9 +95,12 @@ $(ARCHS_IOS):
 			-o $(IOS_LIB_STRIPPED) \
 			extracted/*.o
 
+
 .PHONY: out/ios/$(IOS_LIB)
 out/ios/$(IOS_LIB): $(ARCHS_IOS)
 	mkdir -p out/ios
+	$(foreach arch,$^,mkdir -p out/ios/$(arch);) 
+	$(foreach arch,$^,cp $(CARGO_TARGET_DIR)/$(arch)/$(BUILD_CONFIG_FOLDER)/${IOS_LIB_STRIPPED} out/ios/$(arch);)
 	lipo -create -output $@ $(foreach arch,$^,$(CARGO_TARGET_DIR)/$(arch)/$(BUILD_CONFIG_FOLDER)/$(IOS_LIB_STRIPPED))
 
 	mkdir -p out/ios/include
