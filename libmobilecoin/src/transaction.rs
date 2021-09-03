@@ -44,7 +44,8 @@ pub extern "C" fn mc_tx_out_matches_any_subaddress(
             let shared_secret = get_tx_out_shared_secret(&view_private_key, &public_key);
             let value =
                 (tx_out_amount.masked_value as u64) ^ get_value_mask(&shared_secret);
-            let amount: Amount = Amount::new(value, &shared_secret)?;
+            let amount: Amount = Amount::new(value, &shared_secret)
+                .expect("could not create amount object");
             matches = amount.get_value(&shared_secret).is_ok()
         }
         *out_matches.into_mut() = matches;
