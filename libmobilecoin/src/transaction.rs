@@ -19,7 +19,7 @@ use mc_util_ffi::*;
 /* ==== TxOut ==== */
 
 #[repr(C)]
-pub struct McTxOutAmount<'a> {
+pub struct McTxOutAmount {
     /// 32-byte `CompressedCommitment`
     masked_value: u64,
 }
@@ -43,8 +43,8 @@ pub extern "C" fn mc_tx_out_matches_any_subaddress(
         if let Ok(public_key) = RistrettoPublic::try_from_ffi(&tx_out_public_key) {
             let shared_secret = get_tx_out_shared_secret(&view_private_key, &public_key);
             let value =
-                (tx_out_amount.masked_value as u64) ^ get_value_mask(&tx_out_shared_secret);
-            let amount: Amount = Amount::new(value, &tx_out_shared_secret)?;
+                (tx_out_amount.masked_value as u64) ^ get_value_mask(&shared_secret);
+            let amount: Amount = Amount::new(value, &shared_secret)?;
             matches = amount.get_value(&shared_secret).is_ok()
         }
         *out_matches.into_mut() = matches;
@@ -143,7 +143,7 @@ pub extern "C" fn mc_tx_out_get_value(
 
         let shared_secret = get_tx_out_shared_secret(&view_private_key, &tx_out_public_key);
         let value =
-            (tx_out_amount.masked_value as u64) ^ get_value_mask(&tx_out_shared_secret);
+            (tx_out_amount.masked_value as u64) ^ get_value_mask(&shared_secret);
         let amount: Amount = Amount::new(value, &shared_secret)?;
         let (val, _blinding) = amount.get_value(&shared_secret)?;
 
