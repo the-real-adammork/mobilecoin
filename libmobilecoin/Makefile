@@ -33,7 +33,19 @@ endif
 ### Local Variables
 
 CARGO_PACKAGE = libmobilecoin
-ARCHS_IOS = x86_64-apple-ios aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios-macabi
+
+# Status Quo, works with stripping code
+ARCHS_IOS = x86_64-apple-ios aarch64-apple-ios
+
+# builds, but does not work with stripping code
+#
+# $ make
+# ....
+# ld: building for iOS Simulator, but linking in object file built for iOS, file 'extracted/aes_nohw.o' for architecture arm64
+# make: *** [aarch64-apple-ios-sim] Error 1
+#ARCHS_IOS = aarch64-apple-ios-sim x86_64-apple-ios-macabi
+
+# All targets needed:
 #ARCHS_IOS = x86_64-apple-ios aarch64-apple-ios aarch64-apple-ios-sim aarch64-apple-ios-macabi x86_64-apple-ios-macabi
 IOS_LIB = libmobilecoin.a
 IOS_LIB_STRIPPED = libmobilecoin_stripped.a
@@ -103,8 +115,11 @@ $(ARCHS_IOS):
 .PHONY: out/ios/$(IOS_LIB)
 out/ios/$(IOS_LIB): $(ARCHS_IOS)
 	mkdir -p out/ios
+	# Create arch specific folders for each lib
 	$(foreach arch,$^,mkdir -p out/ios/$(arch);) 
+
 	$(foreach arch,$^,cp $(CARGO_TARGET_DIR)/$(arch)/$(BUILD_CONFIG_FOLDER)/${IOS_LIB} out/ios/$(arch);)
+	$(foreach arch,$^,cp $(CARGO_TARGET_DIR)/$(arch)/$(BUILD_CONFIG_FOLDER)/${IOS_LIB_STRIPPED} out/ios/$(arch);)
 
 	mkdir -p out/ios/include
 	cp $(IOS_C_HEADERS) out/ios/include
