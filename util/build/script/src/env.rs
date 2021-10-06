@@ -290,7 +290,7 @@ impl Environment {
             linker,
             num_jobs: parse_int_var(ENV_NUM_JOBS)?,
             out_path: out_dir,
-            opt_level: parse_int_var(ENV_OPT_LEVEL)?,
+            opt_level: 3,
             profile,
             rustc: var(ENV_RUSTC)
                 .map_err(|e| EnvironmentError::Var(ENV_RUSTC.to_owned(), e))?

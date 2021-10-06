@@ -165,6 +165,19 @@ overflow-checks = false
 inherits = "release"
 debug = false
 lto = true
+opt-level = "z"
+
+[profile.mobile-lto-z]
+inherits = "release"
+debug = false
+lto = true
+opt-level = "z"
+
+[profile.mobile-lto-s]
+inherits = "release"
+debug = false
+lto = true
+opt-level = "s"
 
 # Skip the need for LD_LIBRARY_PATH in `cargo test`
 [profile.test]

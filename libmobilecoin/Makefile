@@ -11,7 +11,7 @@ export IAS_MODE ?= DEV
 
 ### Build Configuration
 
-CARGO_PROFILE ?= release
+CARGO_PROFILE ?= mobile-lto-z
 CARGO_BUILD_FLAGS ?=
 CARGO_TARGET_DIR ?= ../target
 
@@ -41,8 +41,8 @@ IOS_C_HEADERS = include/*
 ### Helper Function
 
 define BINARY_copy
-	mkdir -p out/ios/target/$(1)/release
-	cp $(CARGO_TARGET_DIR)/$(1)/release/libmobilecoin_stripped.a out/ios/target/$(1)/release;
+	mkdir -p out/ios/target/$(1)/${CARGO_PROFILE}
+	cp $(CARGO_TARGET_DIR)/$(1)/${CARGO_PROFILE}/libmobilecoin_stripped.a out/ios/target/$(1)/${CARGO_PROFILE};
 endef
 
 ####################################
@@ -63,8 +63,11 @@ ios: out/ios/$(IOS_LIB)
 
 CARGO_BUILD_FLAGS += --lib -Z avoid-dev-deps
 ifeq ($(CARGO_PROFILE),release)
-  BUILD_CONFIG_FOLDER = release
+  BUILD_CONFIG_FOLDER = ${CARGO_PROFILE}
   CARGO_BUILD_FLAGS += --release
+else ($(CARGO_PROFILE),mobile)
+  BUILD_CONFIG_FOLDER = ${CARGO_PROFILE}
+  CARGO_BUILD_FLAGS += -Z unstable-options --profile ${CARGO_PROFILE}
 else
   BUILD_CONFIG_FOLDER = debug
 endif
