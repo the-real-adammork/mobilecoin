@@ -67,11 +67,11 @@ CARGO_BUILD_FLAGS += --lib -Z avoid-dev-deps
 ifeq ($(CARGO_PROFILE),release)
   BUILD_CONFIG_FOLDER = ${CARGO_PROFILE}
   CARGO_BUILD_FLAGS += --release
-else ($(CARGO_PROFILE),mobile)
+else ifeq ($(CARGO_PROFILE),debug)
+  BUILD_CONFIG_FOLDER = debug
+else
   BUILD_CONFIG_FOLDER = ${CARGO_PROFILE}
   CARGO_BUILD_FLAGS += -Z unstable-options --profile ${CARGO_PROFILE}
-else
-  BUILD_CONFIG_FOLDER = debug
 endif
 
 .PHONY: $(ARCHS_IOS)
