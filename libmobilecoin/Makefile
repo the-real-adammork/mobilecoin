@@ -34,6 +34,7 @@ endif
 
 CARGO_PACKAGE = libmobilecoin
 ARCHS_IOS = aarch64-apple-ios-sim aarch64-apple-ios-macabi aarch64-apple-ios x86_64-apple-ios-macabi x86_64-apple-ios x86_64-apple-darwin
+#ARCHS_IOS = x86_64-apple-ios
 IOS_LIB = libmobilecoin.a
 IOS_LIB_STRIPPED = libmobilecoin_stripped.a
 IOS_C_HEADERS = include/*
@@ -42,6 +43,7 @@ IOS_C_HEADERS = include/*
 
 define BINARY_copy
 	mkdir -p out/ios/target/$(1)/release
+	cp $(CARGO_TARGET_DIR)/$(1)/release/libmobilecoin.a out/ios/target/$(1)/release;
 	cp $(CARGO_TARGET_DIR)/$(1)/release/libmobilecoin_stripped.a out/ios/target/$(1)/release;
 endef
 
@@ -61,6 +63,7 @@ setup:
 .PHONY: ios
 ios: out/ios/$(IOS_LIB)
 
+RUSTFLAGS=" -C embed-bitcode=yes"
 CARGO_BUILD_FLAGS += --lib -Z avoid-dev-deps
 ifeq ($(CARGO_PROFILE),release)
   BUILD_CONFIG_FOLDER = release
@@ -79,7 +82,7 @@ aarch64-apple-ios aarch64-apple-ios-sim aarch64-apple-ios-macabi: LD_ARCH = arm6
 x86_64-apple-ios-macabi aarch64-apple-ios-sim aarch64-apple-ios-macabi: CARGO_BUILD_FLAGS += -Zbuild-std
 
 $(ARCHS_IOS):
-	$(CARGO_ENV_FLAGS) $(CARGO) build --package $(CARGO_PACKAGE) --target $@ $(CARGO_BUILD_FLAGS)
+	RUSTFLAGS=$(RUSTFLAGS) $(CARGO_ENV_FLAGYS) $(CARGO) build --package $(CARGO_PACKAGE) --target $@ $(CARGO_BUILD_FLAGS) 
 
 	@# Extract object files from static archive.
 	@cd $(CARGO_TARGET_DIR)/$@/$(BUILD_CONFIG_FOLDER) && \
