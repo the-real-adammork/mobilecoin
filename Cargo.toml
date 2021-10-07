@@ -1,4 +1,4 @@
-cargo-features = ["named-profiles"]
+cargo-features = ["named-profiles", "strip"]
 
 [workspace]
 resolver = "2"
@@ -165,7 +165,6 @@ overflow-checks = false
 inherits = "release"
 debug = false
 lto = true
-opt-level = "z"
 
 [profile.mobile-lto-z]
 inherits = "release"
@@ -178,6 +177,10 @@ inherits = "release"
 debug = false
 lto = true
 opt-level = "s"
+
+[profile.mobile-strip]
+inherits = "mobile"
+strip = true
 
 # Skip the need for LD_LIBRARY_PATH in `cargo test`
 [profile.test]
