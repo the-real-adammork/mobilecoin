@@ -182,6 +182,10 @@ debug = false
 lto = true
 opt-level = "s"
 
+[profile.mobile-codegen-lto-s]
+inherits = "mobile-codegen"
+opt-level = "s"
+
 [profile.mobile-strip]
 inherits = "mobile"
 strip = true
