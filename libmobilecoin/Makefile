@@ -11,7 +11,7 @@ export IAS_MODE ?= DEV
 
 ### Build Configuration
 
-CARGO_PROFILE ?= mobile-strip
+CARGO_PROFILE ?= mobile-codegen
 CARGO_BUILD_FLAGS ?=
 CARGO_TARGET_DIR ?= ../target
 

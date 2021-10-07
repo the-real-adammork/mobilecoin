@@ -166,6 +166,10 @@ inherits = "release"
 debug = false
 lto = true
 
+[profile.mobile-codegen]
+inherits = "mobile"
+codegen-units = 1
+
 [profile.mobile-lto-z]
 inherits = "release"
 debug = false
