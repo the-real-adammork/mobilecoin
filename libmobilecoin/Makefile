@@ -11,7 +11,7 @@ export IAS_MODE ?= DEV
 
 ### Build Configuration
 
-CARGO_PROFILE ?= mobile-release
+CARGO_PROFILE ?= mobile-release-panic-immediate-buildstdmobile-release
 CARGO_BUILD_FLAGS ?=
 CARGO_TARGET_DIR ?= ../target
 
