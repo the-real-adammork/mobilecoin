@@ -11,7 +11,7 @@ export IAS_MODE ?= DEV
 
 ### Build Configuration
 
-CARGO_PROFILE ?= mobile-release
+CARGO_PROFILE ?= mobile-release-bitcode
 CARGO_BUILD_FLAGS ?=
 CARGO_TARGET_DIR ?= ../target
 
@@ -35,7 +35,9 @@ endif
 ### Local Variables
 
 CARGO_PACKAGE = libmobilecoin
-ARCHS_IOS = aarch64-apple-ios-sim aarch64-apple-ios-macabi aarch64-apple-ios x86_64-apple-ios-macabi x86_64-apple-ios x86_64-apple-darwin
+# ARCHS_IOS = aarch64-apple-ios-sim aarch64-apple-ios-macabi aarch64-apple-ios x86_64-apple-ios-macabi x86_64-apple-ios x86_64-apple-darwin
+ARCHS_IOS = aarch64-apple-ios
+#ARCHS_IOS = x86_64-apple-ios
 IOS_LIB = libmobilecoin.a
 IOS_LIB_STRIPPED = libmobilecoin_stripped.a
 IOS_C_HEADERS = include/*
@@ -81,10 +83,10 @@ x86_64-apple-ios aarch64-apple-ios: CARGO_ENV_FLAGS += CXXFLAGS="-DPB_NO_PACKED_
 x86_64-apple-ios x86_64-apple-ios-macabi x86_64-apple-darwin: LD_ARCH = x86_64
 aarch64-apple-ios aarch64-apple-ios-sim aarch64-apple-ios-macabi: LD_ARCH = arm64
 
-x86_64-apple-ios-macabi aarch64-apple-ios-sim aarch64-apple-ios-macabi: CARGO_BUILD_FLAGS += -Zbuild-std
+#x86_64-apple-ios-macabi aarch64-apple-ios-sim aarch64-apple-ios-macabi: CARGO_BUILD_FLAGS += -Zbuild-std
 
 $(ARCHS_IOS):
-	$(CARGO_ENV_FLAGS) $(CARGO) build --package $(CARGO_PACKAGE) --target $@ $(CARGO_BUILD_FLAGS)
+	$(CARGO_ENV_FLAGS) $(CARGO) +ios-$@-nightly-2021-08-01-swift-5-3-2 build --package $(CARGO_PACKAGE) --target $@ $(CARGO_BUILD_FLAGS)
 
 	@# Extract object files from static archive.
 	@cd $(CARGO_TARGET_DIR)/$@/$(BUILD_CONFIG_FOLDER) && \
