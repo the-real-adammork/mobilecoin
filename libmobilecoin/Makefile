@@ -35,9 +35,7 @@ endif
 ### Local Variables
 
 CARGO_PACKAGE = libmobilecoin
-# ARCHS_IOS = aarch64-apple-ios-sim aarch64-apple-ios-macabi aarch64-apple-ios x86_64-apple-ios-macabi x86_64-apple-ios x86_64-apple-darwin
-ARCHS_IOS = aarch64-apple-ios
-#ARCHS_IOS = x86_64-apple-ios
+ARCHS_IOS = aarch64-apple-ios-sim aarch64-apple-ios-macabi aarch64-apple-ios x86_64-apple-ios-macabi x86_64-apple-ios
 IOS_LIB = libmobilecoin.a
 IOS_LIB_STRIPPED = libmobilecoin_stripped.a
 IOS_C_HEADERS = include/*
