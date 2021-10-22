@@ -44,7 +44,7 @@ IOS_C_HEADERS = include/*
 
 define BINARY_copy
 	mkdir -p out/ios/target/$(1)/${CARGO_PROFILE}
-	cp $(CARGO_TARGET_DIR)/$(1)/${CARGO_PROFILE}/libmobilecoin_stripped.a out/ios/target/$(1)/${CARGO_PROFILE};
+	cp $(CARGO_TARGET_DIR)/$(1)/${CARGO_PROFILE}/libmobilecoin.a out/ios/target/$(1)/${CARGO_PROFILE};
 endef
 
 ####################################
