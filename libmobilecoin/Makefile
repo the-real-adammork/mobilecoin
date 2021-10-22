@@ -14,6 +14,7 @@ export IAS_MODE ?= DEV
 CARGO_PROFILE ?= mobile-release-bitcode
 CARGO_BUILD_FLAGS ?=
 CARGO_TARGET_DIR ?= ../target
+RUST_BITCODE_DIR ?= rust-bitcode
 
 $(info CARGO_PROFILE)
 
@@ -37,7 +38,6 @@ endif
 CARGO_PACKAGE = libmobilecoin
 ARCHS_IOS = aarch64-apple-ios-sim aarch64-apple-ios-macabi aarch64-apple-ios x86_64-apple-ios-macabi x86_64-apple-ios
 IOS_LIB = libmobilecoin.a
-IOS_LIB_STRIPPED = libmobilecoin_stripped.a
 IOS_C_HEADERS = include/*
 
 ### Helper Function
@@ -84,32 +84,12 @@ aarch64-apple-ios aarch64-apple-ios-sim aarch64-apple-ios-macabi: LD_ARCH = arm6
 #x86_64-apple-ios-macabi aarch64-apple-ios-sim aarch64-apple-ios-macabi: CARGO_BUILD_FLAGS += -Zbuild-std
 
 $(ARCHS_IOS):
+	cd  $(RUST_BITCODE_DIR)
+  export BUILD_TARGET="$@"
+	build.sh;
+	install.sh;
+	cd ../
 	$(CARGO_ENV_FLAGS) $(CARGO) +ios-$@-nightly-2021-08-01-swift-5-3-2 build --package $(CARGO_PACKAGE) --target $@ $(CARGO_BUILD_FLAGS)
-
-	@# Extract object files from static archive.
-	@cd $(CARGO_TARGET_DIR)/$@/$(BUILD_CONFIG_FOLDER) && \
-		rm -rf extracted 2>/dev/null; \
-		mkdir -p extracted
-	cd $(CARGO_TARGET_DIR)/$@/$(BUILD_CONFIG_FOLDER)/extracted && \
-		ar -t ../$(IOS_LIB) \
-			| grep '\.o$$' \
-			| xargs ar -x ../$(IOS_LIB)
-
-	@# Create list of libmobilecoin symbols.
-	cd $(CARGO_TARGET_DIR)/$@/$(BUILD_CONFIG_FOLDER) && \
-		rust-nm -jgU extracted/mobilecoin*.mobilecoin.*.o -s __TEXT __text \
-			| grep '\<_mc_' \
-			> exported-symbols.def
-
-	@# Link extracted object files back into static arch. Removes all symbols not needed
-	@# by exported libmobilecoin symbols.
-	@cd $(CARGO_TARGET_DIR)/$@/$(BUILD_CONFIG_FOLDER) && \
-		rm -f $(IOS_LIB_STRIPPED) || true
-	cd $(CARGO_TARGET_DIR)/$@/$(BUILD_CONFIG_FOLDER) && \
-		ld -r -arch $(LD_ARCH) -x -keep_private_externs \
-			-exported_symbols_list exported-symbols.def \
-			-o $(IOS_LIB_STRIPPED) \
-			extracted/*.o
 
 .PHONY: out/ios/$(IOS_LIB)
 out/ios/$(IOS_LIB): $(ARCHS_IOS)
