@@ -40,12 +40,22 @@ ARCHS_IOS = aarch64-apple-ios-sim aarch64-apple-ios-macabi aarch64-apple-ios x86
 IOS_LIB = libmobilecoin.a
 IOS_C_HEADERS = include/*
 
+RUST_COMMIT = 4e282795d
+RUST_COMMIT_NAME = nightly-2021-08-01
+SWIFT_VERSION = 5.3.2
+
 ### Helper Function
 
 define BINARY_copy
 	mkdir -p out/ios/target/$(1)/${CARGO_PROFILE}
 	cp $(CARGO_TARGET_DIR)/$(1)/${CARGO_PROFILE}/libmobilecoin.a out/ios/target/$(1)/${CARGO_PROFILE};
 endef
+
+define TOOLCHAIN_search
+endef
+
+DOT:= .
+DASH:= -
 
 ####################################
 ############## Targets #############
@@ -81,15 +91,23 @@ x86_64-apple-ios aarch64-apple-ios: CARGO_ENV_FLAGS += CXXFLAGS="-DPB_NO_PACKED_
 x86_64-apple-ios x86_64-apple-ios-macabi x86_64-apple-darwin: LD_ARCH = x86_64
 aarch64-apple-ios aarch64-apple-ios-sim aarch64-apple-ios-macabi: LD_ARCH = arm64
 
-#x86_64-apple-ios-macabi aarch64-apple-ios-sim aarch64-apple-ios-macabi: CARGO_BUILD_FLAGS += -Zbuild-std
-
 $(ARCHS_IOS):
-	cd  $(RUST_BITCODE_DIR)
-  export BUILD_TARGET="$@"
-	build.sh;
-	install.sh;
-	cd ../
-	$(CARGO_ENV_FLAGS) $(CARGO) +ios-$@-nightly-2021-08-01-swift-5-3-2 build --package $(CARGO_PACKAGE) --target $@ $(CARGO_BUILD_FLAGS)
+	$(info "Compiling/Installing Rust $(RUST_COMMIT_NAME) toolchain")
+	$(info "from commit - $(RUST_COMMIT)")
+	$(info "for target - $@")
+	$(info "with LLVM matching swift version - $(SWIFT_VERSION)")
+
+	@TOOLCHAIN_INSTALLED=$(shell rustup toolchain list | grep "ios-$@-$(RUST_COMMIT_NAME)-swift-$(subst $(DOT),$(DASH),$(SWIFT_VERSION))" | wc -l | awk '{$$1=$$1;print}'); \
+		if [ "$$TOOLCHAIN_INSTALLED" == "1" ]; then \
+        echo "Toolchain installed"; \
+    else \
+      echo "Installing toolchain"; \
+			cd rust-bitcode && \
+				build-install.sh -t $@ -l $(SWIFT_VERSION) -r $(RUST_COMMIT) -n $(RUST_COMMIT_NAME); \
+    fi
+
+	$(CARGO_ENV_FLAGS) $(CARGO) +ios-$@-$(RUST_COMMIT_NAME)-swift-$(subst $(DOT),$(DASH),$(SWIFT_VERSION)) build --package $(CARGO_PACKAGE) --target $@ $(CARGO_BUILD_FLAGS)
+
 
 .PHONY: out/ios/$(IOS_LIB)
 out/ios/$(IOS_LIB): $(ARCHS_IOS)
