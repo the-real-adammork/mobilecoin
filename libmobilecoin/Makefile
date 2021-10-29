@@ -15,7 +15,7 @@ CARGO_PROFILE ?= mobile-release
 CARGO_BUILD_FLAGS ?=
 CARGO_TARGET_DIR ?= ../target
 
-$(info CARGO_PROFILE)
+$(info $(CARGO_PROFILE))
 
 ### Toolchain
 
@@ -43,8 +43,8 @@ IOS_C_HEADERS = include/*
 ### Helper Function
 
 define BINARY_copy
-	mkdir -p out/ios/target/$(1)/${CARGO_PROFILE}
-	cp $(CARGO_TARGET_DIR)/$(1)/${CARGO_PROFILE}/libmobilecoin_stripped.a out/ios/target/$(1)/${CARGO_PROFILE};
+	mkdir -p out/$(2)/target/$(1)/$(3)
+	cp $(CARGO_TARGET_DIR)/$(1)/$(3)/libmobilecoin_stripped.a out/$(2)/target/$(1)/$(3);
 endef
 
 ####################################
@@ -114,7 +114,7 @@ $(ARCHS_IOS):
 .PHONY: out/ios/$(IOS_LIB)
 out/ios/$(IOS_LIB): $(ARCHS_IOS)
 	mkdir -p out/ios
-	$(foreach arch,$^,$(call BINARY_copy,$(arch)))
+	$(foreach arch,$^,$(call BINARY_copy,$(arch),ios,$(CARGO_PROFILE)))
 
 	mkdir -p out/ios/include
 	cp $(IOS_C_HEADERS) out/ios/include
@@ -122,6 +122,66 @@ out/ios/$(IOS_LIB): $(ARCHS_IOS)
 .PHONY: clean
 clean:
 	@rm -r out 2>/dev/null || true
+
+####################################
+############## Linux ###############
+####################################
+
+ARCHS_LINUX = x86_64-unknown-linux-gnu
+LINUX_LIB = libmobilecoin.a
+LINUX_LIB_STRIPPED = libmobilecoin_linux_stripped.a
+LINUX_C_HEADERS = include/*
+
+.PHONY: linux
+linux: setup-linux linuxlib
+  $(info Building for Linux, should be run in a Linux environment)
+
+.PHONY: setup-linux
+setup-linux:
+	rustup target add x86_64-unknown-linux-gnu
+	rustup component add llvm-tools-preview rust-src
+	rustup run --install stable cargo install cargo-binutils
+
+.PHONY: linuxlib
+linuxlib: out/linux/$(LINUX_LIB)
+
+.PHONY: $(ARCHS_LINUX)
+x86_64-unknown-linux-gnu: LD_ARCH = x86_64
+$(ARCHS_LINUX):
+	$(CARGO) build --package $(CARGO_PACKAGE) --target $@ --release
+
+	@# Extract object files from static archive.
+	@cd $(CARGO_TARGET_DIR)/$@/release && \
+		rm -rf extracted 2>/dev/null; \
+		mkdir -p extracted
+	cd $(CARGO_TARGET_DIR)/$@/release/extracted && \
+		ar -t ../$(LINUX_LIB) \
+			| grep '\.o$$' \
+			| xargs ar -x ../$(LINUX_LIB)
+
+	@# Create list of libmobilecoin symbols.
+	cd $(CARGO_TARGET_DIR)/$@/release && \
+		llvm-nm -jgU extracted/mobilecoin*.mobilecoin.*.o -s __TEXT __text \
+			| grep '^mc_' \
+			> exported-symbols.def
+
+	@# Link extracted object files back into static arch. Removes all symbols not needed
+	@# by exported libmobilecoin symbols.
+	@cd $(CARGO_TARGET_DIR)/$@/release && \
+		rm -f $(LINUX_LIB_STRIPPED) || true
+	cd $(CARGO_TARGET_DIR)/$@/release && \
+		ld -r -arch $(LD_ARCH) \
+			--retain-symbols-file exported-symbols.def \
+			-o $(LINUX_LIB_STRIPPED) \
+			extracted/*.o
+
+.PHONY: out/linux/$(LINUX_LIB)
+out/linux/$(LINUX_LIB): $(ARCHS_LINUX)
+	mkdir -p out/linux
+	$(foreach arch,$^,$(call BINARY_copy,$(arch),linux,release))
+
+	mkdir -p out/linux/include
+	cp $(LINUX_C_HEADERS) out/linux/include
 
 ####################################
 ############# Commands #############
