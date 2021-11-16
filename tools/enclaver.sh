@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NETWORK_ENVIRONMENT="$1.mobilecoin.com"
+NETWORK_ENVIRONMENT="$1"
 
 echo -e "\nDownloading MrEnclave values for $NETWORK_ENVIRONMENT\n"
 export NETWORK=$NETWORK_ENVIRONMENT; ./download_sigstruct.sh 
