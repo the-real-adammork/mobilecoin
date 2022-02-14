@@ -1,0 +1,18 @@
+{
+    "consensus": {
+        "enclave": "pool/e0f0252adf5f847f177ba9679cbdfbf6fb1646ee/bf7fa957a6a94acb588851bc8767eca5776c79f4fc2aa6bcb99312c3c386c/libconsensus-enclave.signed.so",
+        "sigstruct": "pool/e0f0252adf5f847f177ba9679cbdfbf6fb1646ee/bf7fa957a6a94acb588851bc8767eca5776c79f4fc2aa6bcb99312c3c386c/consensus-enclave.css"
+    },
+    "ingest": {
+        "enclave": "pool/b81c9bef5b2572c2fe92b2698abc894c58cbeff7/bf7fa957a6a94acb588851bc8767eca5776c79f4fc2aa6bcb99312c3c386c/libingest-enclave.signed.so",
+        "sigstruct": "pool/b81c9bef5b2572c2fe92b2698abc894c58cbeff7/bf7fa957a6a94acb588851bc8767eca5776c79f4fc2aa6bcb99312c3c386c/ingest-enclave.css"
+    },
+    "ledger": {
+        "enclave": "pool/b81c9bef5b2572c2fe92b2698abc894c58cbeff7/bf7fa957a6a94acb588851bc8767eca5776c79f4fc2aa6bcb99312c3c386c/libledger-enclave.signed.so",
+        "sigstruct": "pool/b81c9bef5b2572c2fe92b2698abc894c58cbeff7/bf7fa957a6a94acb588851bc8767eca5776c79f4fc2aa6bcb99312c3c386c/ledger-enclave.css"
+    },
+    "view": {
+        "enclave": "pool/b81c9bef5b2572c2fe92b2698abc894c58cbeff7/bf7fa957a6a94acb588851bc8767eca5776c79f4fc2aa6bcb99312c3c386c/libview-enclave.signed.so",
+        "sigstruct": "pool/b81c9bef5b2572c2fe92b2698abc894c58cbeff7/bf7fa957a6a94acb588851bc8767eca5776c79f4fc2aa6bcb99312c3c386c/view-enclave.css"
+    }
+}

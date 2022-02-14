@@ -109,6 +109,8 @@ mod compressed_commitment_tests {
             point.compress()
         };
 
+        assert_eq!(commitment.point, 0);
+        assert_eq!(0, expected_point);
         assert_eq!(commitment.point, expected_point);
     }
 }

@@ -27,6 +27,10 @@ pub struct McTxOutAmount {
 /// # Preconditions
 ///
 /// * `view_private_key` - must be a valid 32-byte Ristretto-format scalar.
+///
+/// # Errors
+///
+/// * `LibMcError::InvalidInput`
 #[no_mangle]
 pub extern "C" fn mc_tx_out_reconstruct_commitment(
     tx_out_amount: FfiRefPtr<McTxOutAmount>,
@@ -74,6 +78,41 @@ pub extern "C" fn mc_tx_out_commitment_crc32(
             Crc::<u32>::new(&crc::CRC_32_ISO_HDLC).checksum(&commitment.to_bytes());
         Ok(())
     })
+}
+
+#[cfg(test)]
+#[allow(non_snake_case)]
+mod transaction_tests {
+    use crate::{
+        common::McBuffer
+    };
+    use mc_util_ffi::*;
+    use mc_transaction_core::{
+            ring_signature::Scalar,
+            CompressedCommitment,
+        };
+    use rand::{rngs::StdRng, RngCore, SeedableRng};
+    use crc::Crc;
+
+    #[test]
+    fn test_crc32() {
+        // From test in CompressedCommitment
+        let mut rng: StdRng = SeedableRng::from_seed([1u8; 32]);
+        let value = rng.next_u64();
+        let blinding = Scalar::random(&mut rng);
+
+        let commitment = CompressedCommitment::new(value, blinding);
+        let crc32 = Crc::<u32>::new(&crc::CRC_32_ISO_HDLC).checksum(&commitment.point.to_bytes());
+
+        // Create McBuffer w/ commitment ?
+        //let ptr = FfiRefPtr::from_raw(&commitment.as_ref());
+        //let mc_buffer = McBuffer { buffer: ptr, len: commitment.as_ref().len(), _phantom: ptr.1};
+
+        //let out_crc32 = u32
+        //let out_error = FfiOptMutPtr ... 
+        //mc_tx_out_commitment_crc32(mc_buffer, out_crc32, out_error)
+        //assert_eq!(crc32, out_crc32)
+    }
 }
 
 /// # Preconditions

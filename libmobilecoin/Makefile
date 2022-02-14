@@ -86,6 +86,10 @@ DASH:= -
 ############## Targets #############
 ####################################
 
+.PHONY: test
+test:
+	cargo test
+
 .PHONY: all
 all: setup ios
 
