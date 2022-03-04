@@ -38,8 +38,6 @@ TARGET_TOOLCHAINS = toolchain_aarch64-apple-ios-sim toolchain_aarch64-apple-ios-
 # add l_ prefix to build-targets that use the legacy build-process
 ALL_LEGACY_ARCHS_IOS = l_aarch64-apple-ios-sim l_aarch64-apple-ios-macabi l_aarch64-apple-ios l_x86_64-apple-ios-macabi l_x86_64-apple-ios l_x86_64-apple-darwin
 
-IOS_LIB = libmobilecoin.a
-IOS_LIB_STRIPPED = libmobilecoin_stripped.a
 IOS_C_HEADERS = include/*
 
 RUST_BITCODE_COMMIT = $(shell source toolchain-config.env; echo $$RUST_BITCODE_COMMIT)
@@ -166,31 +164,6 @@ l_aarch64-apple-ios l_aarch64-apple-ios-sim l_aarch64-apple-ios-macabi: LD_ARCH 
 l_x86_64-apple-ios-macabi l_aarch64-apple-ios-sim l_aarch64-apple-ios-macabi: LEGACY_CARGO_BUILD_FLAGS += -Zbuild-std
 $(ALL_LEGACY_ARCHS_IOS):
 	$(CARGO_ENV_FLAGS) $(CARGO) build --package $(CARGO_PACKAGE) --target $(subst l_,,$@) $(LEGACY_CARGO_BUILD_FLAGS)
-
-	@# Extract object files from static archive.
-	@cd $(CARGO_TARGET_DIR)/$(subst l_,,$@)/$(BUILD_CONFIG_FOLDER) && \
-		rm -rf extracted 2>/dev/null; \
-		mkdir -p extracted
-	cd $(CARGO_TARGET_DIR)/$(subst l_,,$@)/$(BUILD_CONFIG_FOLDER)/extracted && \
-		ar -t ../$(IOS_LIB) \
-			| grep '\.o$$' \
-			| xargs ar -x ../$(IOS_LIB)
-
-	@# Create list of libmobilecoin symbols.
-	cd $(CARGO_TARGET_DIR)/$(subst l_,,$@)/$(BUILD_CONFIG_FOLDER) && \
-		rust-nm -jgU extracted/mobilecoin*.mobilecoin.*.o -s __TEXT __text \
-			| grep '\<_mc_' \
-			> exported-symbols.def
-
-	@# Link extracted object files back into static arch. Removes all symbols not needed
-	@# by exported libmobilecoin symbols.
-	@cd $(CARGO_TARGET_DIR)/$(subst l_,,$@)/$(BUILD_CONFIG_FOLDER) && \
-		rm -f $(IOS_LIB_STRIPPED) || true
-	cd $(CARGO_TARGET_DIR)/$(subst l_,,$@)/$(BUILD_CONFIG_FOLDER) && \
-		ld -r -arch $(LD_ARCH) -x -keep_private_externs \
-			-exported_symbols_list exported-symbols.def \
-			-o $(IOS_LIB_STRIPPED) \
-			extracted/*.o
 
 
 .PHONY: out/ios/legacy
