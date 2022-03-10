@@ -253,6 +253,26 @@ McData* MC_NULLABLE mc_transaction_builder_build(
 )
 MC_ATTRIBUTE_NONNULL(1);
 
+
+/// # Preconditions
+///
+/// * `account_key` - must be a valid `AccountKey` with `fog_info`.
+McTxOutMemoBuilder* MC_NULLABLE mc_memo_builder_sender_and_destination_create(
+  const McAccountKey* MC_NONNULL account_key,
+)
+MC_ATTRIBUTE_NONNULL(1);
+
+/// # Preconditions
+///
+/// * `account_key` - must be a valid `AccountKey` with `fog_info`.
+McTxOutMemoBuilder* MC_NULLABLE mc_memo_builder_sender_payment_request_and_destination_create(
+  uint64_t payment_request_id,
+  const McAccountKey* MC_NONNULL account_key,
+)
+MC_ATTRIBUTE_NONNULL(2);
+
+McTxOutMemoBuilder* MC_NULLABLE mc_memo_builder_default_create();
+
 #ifdef __cplusplus
 }
 #endif

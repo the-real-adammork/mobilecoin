@@ -596,6 +596,8 @@ pub extern "C" fn mc_memo_builder_default_create(
         Some(memo_builder_box)
     })
 }
+
+
 impl<'a> TryFromFfi<&McBuffer<'a>> for CompressedCommitment {
     type Error = LibMcError;
 

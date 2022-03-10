@@ -804,3 +804,20 @@ FfiOptOwnedPtr<McData> mc_transaction_builder_add_output_with_fog_hint_address(F
 FfiOptOwnedPtr<McData> mc_transaction_builder_build(FfiMutPtr<McTransactionBuilder> transaction_builder,
                                                     FfiOptMutPtr<McRngCallback> rng_callback,
                                                     FfiOptMutPtr<FfiOptOwnedPtr<McError>> out_error);
+
+/**
+ * # Preconditions
+ *
+ * * `account_key` - must be a valid `AccountKey` with `fog_info`.
+ */
+FfiOptOwnedPtr<McTxOutMemoBuilder> mc_memo_builder_sender_and_destination_create(FfiRefPtr<McAccountKey> account_key);
+
+/**
+ * # Preconditions
+ *
+ * * `account_key` - must be a valid `AccountKey` with `fog_info`.
+ */
+FfiOptOwnedPtr<McTxOutMemoBuilder> mc_memo_builder_sender_payment_request_and_destination_create(uint64_t payment_request_id,
+                                                                                                 FfiRefPtr<McAccountKey> account_key);
+
+FfiOptOwnedPtr<McTxOutMemoBuilder> mc_memo_builder_default_create(void);
