@@ -21,6 +21,7 @@ typedef struct {
 
 typedef struct _McTransactionBuilderRing McTransactionBuilderRing;
 typedef struct _McTransactionBuilder McTransactionBuilder;
+typedef struct _McTxOutMemoBuilder McTxOutMemoBuilder;
 
 /* ==== TxOut ==== */
 

@@ -34,6 +34,9 @@ pub struct McTxOutAmount {
     masked_value: u64,
 }
 
+pub type McTxOutMemoBuilder = Option<Box<dyn MemoBuilder + Sync + Send>>;
+impl_into_ffi!(Option<Box<dyn MemoBuilder + Sync + Send>>);
+
 /// # Preconditions
 ///
 /// * `view_private_key` - must be a valid 32-byte Ristretto-format scalar.
@@ -340,6 +343,7 @@ pub extern "C" fn mc_transaction_builder_create(
     fee: u64,
     tombstone_block: u64,
     fog_resolver: FfiOptRefPtr<McFogResolver>,
+    memo_builder: FfiOptRefPtr<MxTxOutMemoBuilder>,
 ) -> FfiOptOwnedPtr<McTransactionBuilder> {
     ffi_boundary(|| {
         let fog_resolver =
