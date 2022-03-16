@@ -32,6 +32,8 @@ typedef struct McFogResolver McFogResolver;
 
 typedef struct McTransactionBuilderRing McTransactionBuilderRing;
 
+typedef struct McTxOutMemoBuilder McTxOutMemoBuilder;
+
 typedef struct Option_TransactionBuilder_FogResolver Option_TransactionBuilder_FogResolver;
 
 typedef struct Vec_u8 Vec_u8;
@@ -723,7 +725,9 @@ bool mc_transaction_builder_ring_add_element(FfiMutPtr<McTransactionBuilderRing>
 
 FfiOptOwnedPtr<McTransactionBuilder> mc_transaction_builder_create(uint64_t fee,
                                                                    uint64_t tombstone_block,
-                                                                   FfiOptRefPtr<McFogResolver> fog_resolver);
+                                                                   FfiOptRefPtr<McFogResolver> fog_resolver,
+                                                                   FfiOptRefPtr<McTxOutMemoBuilder> memo_builder,
+                                                                   uint32_t block_version);
 
 void mc_transaction_builder_free(FfiOptOwnedPtr<McTransactionBuilder> transaction_builder);
 
@@ -821,3 +825,5 @@ FfiOptOwnedPtr<McTxOutMemoBuilder> mc_memo_builder_sender_payment_request_and_de
                                                                                                  FfiRefPtr<McAccountKey> account_key);
 
 FfiOptOwnedPtr<McTxOutMemoBuilder> mc_memo_builder_default_create(void);
+
+void mc_memo_builder_free(FfiOptOwnedPtr<McTxOutMemoBuilder> memo_builder);
