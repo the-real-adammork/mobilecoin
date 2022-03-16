@@ -1,8 +1,8 @@
 // Copyright (c) 2018-2021 The MobileCoin Foundation
 
-use crate::{common::*, fog::McFogResolver, keys::McPublicAddress, LibMcError};
+use crate::{common::*, fog::McFogResolver, keys::{McPublicAddress, McAccountKey}, LibMcError};
 use core::convert::TryFrom;
-use mc_account_keys::PublicAddress;
+use mc_account_keys::{PublicAddress, AccountKey};
 use mc_crypto_keys::{ReprBytes, RistrettoPrivate, RistrettoPublic};
 use mc_fog_report_validation::FogResolver;
 use mc_transaction_core::{
@@ -12,7 +12,7 @@ use mc_transaction_core::{
     tx::{TxOut, TxOutConfirmationNumber, TxOutMembershipProof},
     Amount, CompressedCommitment,
 };
-use mc_transaction_std::{InputCredentials, NoMemoBuilder, TransactionBuilder};
+use mc_transaction_std::{ChangeDestination, InputCredentials, NoMemoBuilder, TransactionBuilder};
 use mc_util_ffi::*;
 
 /* ==== TxOut ==== */
@@ -441,6 +441,47 @@ pub extern "C" fn mc_transaction_builder_add_output(
 
         let (tx_out, confirmation) =
             transaction_builder.add_output(amount, &recipient_address, &mut rng)?;
+
+        out_tx_out_confirmation_number.copy_from_slice(confirmation.as_ref());
+        Ok(mc_util_serial::encode(&tx_out))
+    })
+}
+
+/// # Preconditions
+///
+/// * `account_kay` - must be a valid account key, default change address computed from account key
+/// * `transaction_builder` - must not have been previously consumed by a call
+///   to `build`.
+/// * `out_tx_out_confirmation_number` - length must be >= 32.
+///
+/// # Errors
+///
+/// * `LibMcError::AttestationVerification`
+/// * `LibMcError::InvalidInput`
+#[no_mangle]
+pub extern "C" fn mc_transaction_builder_add_change_output(
+    account_key: FfiRefPtr<McAccountKey>,
+    transaction_builder: FfiMutPtr<McTransactionBuilder>,
+    amount: u64,
+    rng_callback: FfiOptMutPtr<McRngCallback>,
+    out_tx_out_confirmation_number: FfiMutPtr<McMutableBuffer>,
+    out_error: FfiOptMutPtr<FfiOptOwnedPtr<McError>>,
+) -> FfiOptOwnedPtr<McData> {
+    ffi_boundary_with_error(out_error, || {
+        let account_key_obj = AccountKey::try_from_ffi(&account_key).expect("account_key is invalid");
+        let transaction_builder = transaction_builder
+            .into_mut()
+            .as_mut()
+            .expect("McTransactionBuilder instance has already been used to build a Tx");
+        let change_destination = ChangeDestination::from(&account_key_obj);
+        let mut rng = SdkRng::from_ffi(rng_callback);
+        let out_tx_out_confirmation_number = out_tx_out_confirmation_number
+            .into_mut()
+            .as_slice_mut_of_len(TxOutConfirmationNumber::size())
+            .expect("out_tx_out_confirmation_number length is insufficient");
+
+        let (tx_out, confirmation) =
+            transaction_builder.add_change_output(amount, &change_destination, &mut rng)?;
 
         out_tx_out_confirmation_number.copy_from_slice(confirmation.as_ref());
         Ok(mc_util_serial::encode(&tx_out))
