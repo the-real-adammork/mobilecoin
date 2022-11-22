@@ -96,6 +96,10 @@ impl IasReportVerifier {
         // provided certs for pubkey X, and each one has its own path back to
         // a trust anchor.
 
+        eprintln!("::Enter::");
+        eprintln!("pub fn verify(&self, report: &VerificationReport) -> Result<VerificationReportData, Error>");
+        eprintln!("::Enter::");
+
         if report.chain.is_empty() {
             return Err(Error::NoChain);
         }
@@ -147,6 +151,7 @@ impl IasReportVerifier {
                 'outer: loop {
                     // Exclude any signing chains greater than our max depth
                     if signer_chain.len() > MAX_CHAIN_DEPTH {
+                        eprintln!("Error: signer_chain.len() > MAX_CHAIN_DEPTH")
                         return None;
                     }
 
@@ -191,6 +196,10 @@ impl IasReportVerifier {
                 let mut signer_toplevel_single = MbedtlsList::new();
                 signer_toplevel_single.push(signer_toplevel.clone());
 
+                eprintln!("::here::");
+                eprintln!("signer_toplevel_single.push(signer_toplevel.clone());");
+                eprintln!("::here::");
+
                 // First, check if the last element in the chain is signed by a trust anchor
                 for cacert in &trust_anchors {
                     let mut cacert_single = MbedtlsList::new();
@@ -209,15 +218,15 @@ impl IasReportVerifier {
                 }
 
                 // Otherwise, check if any of the pubkeys in the chain are a trust anchor
-                for cert in &mut signer_chain {
-                    for cacert in &mut trust_anchors {
-                        if cert.public_key_mut().write_public_der_vec()
-                            == cacert.public_key_mut().write_public_der_vec()
-                        {
-                            return Some(());
-                        }
-                    }
-                }
+                //for cert in &mut signer_chain {
+                    //for cacert in &mut trust_anchors {
+                        //if cert.public_key_mut().write_public_der_vec()
+                            //== cacert.public_key_mut().write_public_der_vec()
+                        //{
+                            //return Some(());
+                        //}
+                    //}
+                //}
                 None
             })
             .ok_or(Error::BadSignature)?;

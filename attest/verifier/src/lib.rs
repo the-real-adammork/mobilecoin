@@ -8,7 +8,6 @@
 //! mechanism for authenticating attested connections.
 
 #![doc = include_str!("../README.md")]
-#![no_std]
 
 mod avr;
 mod ias;
