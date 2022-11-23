@@ -104,6 +104,7 @@ impl IasReportVerifier {
             return Err(Error::NoChain);
         }
 
+        eprintln!("::Step1::");
         // Construct a verification profile for what kind of X509 chain we
         // will support
         let profile = Profile::new(
@@ -119,6 +120,7 @@ impl IasReportVerifier {
             2048,
         );
 
+        eprintln!("::Step2::");
         // Intel uses rsa-sha256 as their signature algorithm, which means
         // the signature is actually over the sha256 hash of the data, not
         // the data itself. mbedtls is primitive enough that we need to do
@@ -134,24 +136,34 @@ impl IasReportVerifier {
             .filter_map(|maybe_der_bytes| Certificate::from_der(maybe_der_bytes).ok())
             .collect();
 
+        eprintln!("::Step3::");
         parsed_chain
             .iter()
             // First, find any certs which contain the report signer's pubkey
             .filter_map(|src_cert| {
+                eprintln!("::Step4::");
                 let mut newcert = src_cert.clone();
-                newcert
+
+                eprintln!("{newcert:?}");
+
+                eprintln!("Hash as_slice() - {:x?}", hash.as_slice());
+                eprintln!("Report - {report:?}");
+
+                let verify_result = newcert
                     .public_key_mut()
-                    .verify(HashType::Sha256, hash.as_slice(), report.sig.as_ref())
-                    .and(Ok(newcert))
-                    .ok()
+                    .verify(HashType::Sha256, hash.as_slice(), report.sig.as_ref());
+
+                eprintln!("verify_result - {verify_result:?}");
+                return verify_result.and(Ok(newcert)).ok()
             })
             // Then construct a set of chains, one for each signer certificate
             .filter_map(|cert| {
+                eprintln!("::Step5::");
                 let mut signer_chain = vec![cert];
                 'outer: loop {
                     // Exclude any signing chains greater than our max depth
                     if signer_chain.len() > MAX_CHAIN_DEPTH {
-                        eprintln!("Error: signer_chain.len() > MAX_CHAIN_DEPTH")
+                        eprintln!("Error: signer_chain.len() > MAX_CHAIN_DEPTH");
                         return None;
                     }
 
@@ -190,6 +202,7 @@ impl IasReportVerifier {
             })
             // Then see if any of those chains are connected to a trust anchor
             .find_map(|mut signer_chain| {
+                eprintln!("::Step6::");
                 let signer_toplevel = signer_chain
                     .last()
                     .expect("Signer chain was somehow emptied before use.");
@@ -231,6 +244,7 @@ impl IasReportVerifier {
             })
             .ok_or(Error::BadSignature)?;
 
+        eprintln!("::Step8::");
         let report_data = VerificationReportData::try_from(report)?;
 
         if (self.and_verifiers.is_empty()
