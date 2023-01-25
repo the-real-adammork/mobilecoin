@@ -317,13 +317,15 @@ dependencies = [
 
 [[package]]
 name = "bindgen"
-version = "0.63.0"
+version = "0.60.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36d860121800b2a9a94f9b5604b332d5cffb234ce17609ea479d723dbc9d3885"
+checksum = "062dddbc1ba4aca46de6338e2bf87771414c335f7b2f2036e8f3e9befebf88e6"
 dependencies = [
  "bitflags",
  "cexpr",
  "clang-sys",
+ "clap 3.2.22",
+ "env_logger",
  "lazy_static",
  "lazycell",
  "log",
@@ -333,7 +335,6 @@ dependencies = [
  "regex",
  "rustc-hash",
  "shlex",
- "syn",
  "which",
 ]
 
@@ -664,9 +665,12 @@ version = "3.2.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "86447ad904c7fb335a790c9d7fe3d0d971dc523b8ccd1561a520de9a85302750"
 dependencies = [
+ "atty",
  "bitflags",
  "clap_lex 0.2.2",
  "indexmap",
+ "strsim 0.10.0",
+ "termcolor",
  "textwrap 0.15.1",
 ]
 
@@ -2103,9 +2107,9 @@ checksum = "b294d6fa9ee409a054354afc4352b0b9ef7ca222c69b8812cbea9e7d2bf3783f"
 
 [[package]]
 name = "libc"
-version = "0.2.137"
+version = "0.2.139"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fc7fcc620a3bff7cdd7a365be3376c97191aeaccc2a603e600951e452615bf89"
+checksum = "201de327520df007757c1f0adce6e827fe8562fbc28bfd9c15571c66ca1f5f79"
 
 [[package]]
 name = "libloading"
@@ -2241,7 +2245,7 @@ checksum = "7ffc5c5338469d4d3ea17d269fa8ea3512ad247247c30bd2df69e68309ed0a08"
 [[package]]
 name = "mbedtls"
 version = "0.8.1"
-source = "git+https://github.com/mobilecoinfoundation/rust-mbedtls.git?rev=8e16a2fd8c3b80ee3111ac0b51c48ce2029f46e0#8e16a2fd8c3b80ee3111ac0b51c48ce2029f46e0"
+source = "git+https://github.com/the-real-adammork/rust-mbedtls.git?rev=4116532348530f1de538e90336ebe65809e0dc95#4116532348530f1de538e90336ebe65809e0dc95"
 dependencies = [
  "bitflags",
  "byteorder",
@@ -2252,6 +2256,7 @@ dependencies = [
  "mbedtls-sys-auto",
  "rs-libc",
  "serde",
+ "serde_derive",
  "spin 0.9.4",
  "yasna",
 ]
@@ -2259,9 +2264,9 @@ dependencies = [
 [[package]]
 name = "mbedtls-sys-auto"
 version = "2.26.1"
-source = "git+https://github.com/mobilecoinfoundation/rust-mbedtls.git?rev=8e16a2fd8c3b80ee3111ac0b51c48ce2029f46e0#8e16a2fd8c3b80ee3111ac0b51c48ce2029f46e0"
+source = "git+https://github.com/the-real-adammork/rust-mbedtls.git?rev=4116532348530f1de538e90336ebe65809e0dc95#4116532348530f1de538e90336ebe65809e0dc95"
 dependencies = [
- "bindgen 0.63.0",
+ "bindgen 0.60.1",
  "cc",
  "cfg-if 1.0.0",
  "cmake",
